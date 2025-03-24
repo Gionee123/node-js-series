@@ -12,6 +12,7 @@
     "axios": "^1.8.3",
     "next": "15.2.2",
     "razorpay": "^2.9.6",
+    "razorpay-checkout": "^1.0.4",
     "react": "^19.0.0",
     "react-cookie": "^8.0.0",
     "react-dom": "^19.0.0",

@@ -8,7 +8,7 @@ export default function Cart() {
     console.log(cart)
     const [Totalprice, setTotalprice] = useState(0)
     const [Totaltax, setTotaltax] = useState(0)
-    const Razorpay = useRazorpay(); // Initialize Razorpay
+    const [Razorpay] = useRazorpay();
 
     let deleteRow = (id) => {
         if (window.confirm("Are you sure want delete this???")) {
