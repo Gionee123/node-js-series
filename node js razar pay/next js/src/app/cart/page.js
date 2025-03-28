@@ -1,14 +1,16 @@
 "use client"
 import React, { useContext, useEffect, useState } from 'react';
 import { cartContext } from '../Context/CartContext';
-import useRazorpay from "react-razorpay";
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+import axios from 'axios';
 
 export default function Cart() {
     let { cart, setcart } = useContext(cartContext);
-    console.log(cart)
+    console.log("cart", cart)
     const [Totalprice, setTotalprice] = useState(0)
     const [Totaltax, setTotaltax] = useState(0)
-    const [Razorpay] = useRazorpay();
+    // const [Razorpay] = useRazorpay(); // error show razor apy
+    const { error, isLoading, Razorpay } = useRazorpay(); //error soultion
 
     let deleteRow = (id) => {
         if (window.confirm("Are you sure want delete this???")) {
@@ -44,28 +46,39 @@ export default function Cart() {
 
 
     const placeOrder = () => {
-        const shippingDetails = {
-            address: "testing address"
+        if (!cart || cart.length === 0) {
+            alert("Your cart is empty!");
+            return;
         }
-        const userId = 1001; //login user is id dene hai
-        const productDetails = cart.map((c) => {
-            return {
-                productId: c.id,
-                qty: c.qty,
-                price: c.price,
-                total: c.qty * c.price,
-            };
-        });
 
 
+        const userId = 1001; // Ideally, get this from the auth state
+
+        const productDetails = cart.map((c) => ({
+            productId: c.id,
+            qty: c.qty,
+            price: c.price,
+            total: c.qty * c.price,
+        }));
+
+        // Calculate dynamic order total
+        const orderSubtotal = productDetails.reduce((sum, item) => sum + item.total, 0);
+        const taxAmount = orderSubtotal * 5 / 100; // 5% टैक्स
+        const orderTotal = orderSubtotal + taxAmount;
+        const shippingDetails = {
+            address: "h.n 3583 jaipur"
+        };
+
+
+        let datasava = {
+            user_id: userId,
+            product_details: productDetails,
+            order_total: orderTotal,
+            shipping_details: shippingDetails
+        }
         axios.post(
-            "http://localhost:5000/api/frontend/orders/place-order",
-            {
-                user_id: userId,
-                product_details: productDetails,
-                order_total: 5000,
-                shipping_details: shippingDetails,
-            }
+            "http://localhost:5000/api/frontend/orders/place-order", datasava
+
         ).then(
             (success) => {
                 console.log(success)
@@ -251,7 +264,7 @@ export default function Cart() {
                             <span>Total Cost</span>
                             <span>${(Totalprice + Totaltax).toFixed(2)}</span>
                         </div>
-                        <button className="bg-indigo-500 text-white w-full py-3 mt-4 rounded-md" onClick={placeOrder}>Checkout</button>
+                        <button className="bg-indigo-500 text-white w-full py-3 mt-4 rounded-md cursor-pointer" onClick={placeOrder}>Checkout</button>
                     </div>
                 </div>
             </div>
